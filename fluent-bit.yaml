@@ -66,6 +66,7 @@ data:
     [INPUT]
         Name                tail
         Tag                 application.*
+        Log_Level           warn
         Exclude_Path        /var/log/containers/cloudwatch-agent*, /var/log/containers/fluent-bit*, /var/log/containers/aws-node*, /var/log/containers/kube-proxy*
         Path                /var/log/containers/*.log
         Docker_Mode         On
@@ -83,6 +84,7 @@ data:
     [INPUT]
         Name                tail
         Tag                 application.*
+        Log_Level           warn
         Path                /var/log/containers/fluent-bit*
         Parser              docker
         DB                  /var/fluent-bit/state/flb_log.db
@@ -94,6 +96,7 @@ data:
     [INPUT]
         Name                tail
         Tag                 application.*
+        Log_Level           warn
         Path                /var/log/containers/cloudwatch-agent*
         Docker_Mode         On
         Docker_Mode_Flush   5
@@ -120,15 +123,6 @@ data:
         Kubelet_Port        10250
         Buffer_Size         0
 
-    [OUTPUT]
-        Name                cloudwatch_logs
-        Match               application.*
-        region              ${AWS_REGION}
-        log_group_name      /aws/containerinsights/${CLUSTER_NAME}/application
-        log_stream_prefix   ${HOST_NAME}-
-        auto_create_group   true
-        extra_user_agent    container-insights
-  
     [FILTER]
         Name                nest
         Match               application.*
@@ -150,6 +144,15 @@ data:
         Wildcard            Kube.*
         Nested_under        kubernetes
         Remove_prefix       Kube.
+
+    [OUTPUT]
+        Name                cloudwatch_logs
+        Match               application.*
+        region              ${AWS_REGION}
+        log_group_name      /aws/containerinsights/${CLUSTER_NAME}/application
+        log_stream_prefix   ${HOST_NAME}-
+        auto_create_group   true
+        extra_user_agent    container-insights
 
   dataplane-log.conf: |
     [INPUT]
